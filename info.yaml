@@ -1,3 +1,6 @@
+# Tiny Tapeout project information
+yaml_version: 6
+
 project:
   title:        "4-bit Ripple Carry Adder"
   author:       "Abdul Muqtadir"
@@ -6,13 +9,19 @@ project:
   language:     "Verilog"
   clock_hz:     0
 
+  # How many tiles your design occupies? A single tile is 1x1
+  tiles: "1x1"
+
+  # Top-level module name (matches project.v)
   top_module:  "tt_um_rca_example"
 
+  # List your sources
   source_files:
     - "project.v"
 
+# Pinout configuration
 pinout:
-  
+  # Dedicated inputs
   ui[0]: "A[0]"
   ui[1]: "A[1]"
   ui[2]: "A[2]"
@@ -22,6 +31,7 @@ pinout:
   ui[6]: "B[2]"
   ui[7]: "B[3]"
 
+  # Dedicated outputs
   uo[0]: "Sum[0]"
   uo[1]: "Sum[1]"
   uo[2]: "Sum[2]"
@@ -31,6 +41,7 @@ pinout:
   uo[6]: "GND"
   uo[7]: "GND"
 
+  # Bidirectional pins
   uio[0]: "Cin"
   uio[1]: "none"
   uio[2]: "none"
