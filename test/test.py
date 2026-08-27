@@ -1,40 +1,34 @@
-# SPDX-FileCopyrightText: © 2024 Tiny Tapeout
-# SPDX-License-Identifier: Apache-2.0
-
 import cocotb
-from cocotb.clock import Clock
-from cocotb.triggers import ClockCycles
-
+from cocotb.triggers import Timer
 
 @cocotb.test()
-async def test_project(dut):
-    dut._log.info("Start")
+async def test_ripple_carry_adder(dut):
+    dut._log.info("Start Ripple Carry Adder Test")
 
-    # Set the clock period to 10 us (100 KHz)
-    clock = Clock(dut.clk, 10, unit="us")
-    cocotb.start_soon(clock.start())
-
-    # Reset
-    dut._log.info("Reset")
+    # Set enable signals
     dut.ena.value = 1
-    dut.ui_in.value = 0
-    dut.uio_in.value = 0
-    dut.rst_n.value = 0
-    await ClockCycles(dut.clk, 10)
+    dut.clk.value = 0
     dut.rst_n.value = 1
+    dut.uio_in.value = 0
 
-    dut._log.info("Test project behavior")
+    # Test cases: (A, B, Cin) -> expected (Cout, Sum)
+    test_cases = [
+        (0, 0, 0, 0, 0),
+        (5, 3, 0, 0, 8),    # 5 + 3 = 8
+        (15, 1, 0, 1, 0),   # 15 + 1 = 16 (Sum 0, Cout 1)
+        (7, 7, 1, 0, 15),   # 7 + 7 + 1 = 15
+        (15, 15, 1, 1, 15), # 15 + 15 + 1 = 31 (Sum 15, Cout 1)
+    ]
 
-    # Set the input values you want to test
-    dut.ui_in.value = 20
-    dut.uio_in.value = 30
+    for a, b, cin, exp_cout, exp_sum in test_cases:
+        dut.ui_in.value = (b << 4) | a
+        dut.uio_in.value = cin
+        await Timer(10, units="ns")
 
-    # Wait for one clock cycle to see the output values
-    await ClockCycles(dut.clk, 1)
+        actual_sum = int(dut.uo_out.value) & 0xF
+        actual_cout = (int(dut.uo_out.value) >> 4) & 0x1
 
-    # The following assersion is just an example of how to check the output values.
-    # Change it to match the actual expected output of your module:
-    assert dut.uo_out.value == 50
+        assert actual_sum == exp_sum, f"Failed A={a}, B={b}, Cin={cin} -> Sum: expected {exp_sum}, got {actual_sum}"
+        assert actual_cout == exp_cout, f"Failed A={a}, B={b}, Cin={cin} -> Cout: expected {exp_cout}, got {actual_cout}"
 
-    # Keep testing the module by changing the input values, waiting for
-    # one or more clock cycles, and asserting the expected output values.
+    dut._log.info("All tests passed successfully!")
