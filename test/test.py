@@ -5,19 +5,17 @@ from cocotb.triggers import Timer
 async def test_ripple_carry_adder(dut):
     dut._log.info("Start Ripple Carry Adder Test")
 
-    # Set enable signals
     dut.ena.value = 1
     dut.clk.value = 0
     dut.rst_n.value = 1
     dut.uio_in.value = 0
 
-    # Test cases: (A, B, Cin) -> expected (Cout, Sum)
     test_cases = [
         (0, 0, 0, 0, 0),
-        (5, 3, 0, 0, 8),    # 5 + 3 = 8
-        (15, 1, 0, 1, 0),   # 15 + 1 = 16 (Sum 0, Cout 1)
-        (7, 7, 1, 0, 15),   # 7 + 7 + 1 = 15
-        (15, 15, 1, 1, 15), # 15 + 15 + 1 = 31 (Sum 15, Cout 1)
+        (5, 3, 0, 0, 8),   
+        (15, 1, 0, 1, 0),   
+        (7, 7, 1, 0, 15),   
+        (15, 15, 1, 1, 15),
     ]
 
     for a, b, cin, exp_cout, exp_sum in test_cases:
